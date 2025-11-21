@@ -13,10 +13,17 @@ from schemas import User, Message, Block, AdminLog
 
 app = FastAPI(title="Slash Messenger API")
 
+# CORS configuration: allow our preview hosts and localhost explicitly
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=[
+        "http://localhost:3000",
+        "https://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://127.0.0.1:3000",
+    ],
+    allow_origin_regex=r"https:\/\/.*modal\.host$",
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

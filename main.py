@@ -22,7 +22,8 @@ app.add_middleware(
         "http://127.0.0.1:3000",
         "https://127.0.0.1:3000",
     ],
-    allow_origin_regex=r"https:\/\/.*modal\.host$",
+    # Allow both modal.host and modal.run preview domains
+    allow_origin_regex=r"https:\/\/.*modal\.(host|run)$",
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -300,15 +301,6 @@ def admin_edit_user(data: dict, username: str = Depends(get_current_username)):
     db["user"].update_one({"username": target_username}, {"$set": update})
     create_document("adminlog", AdminLog(actor=username, action="edit_user", target=target_username, metadata={"fields": list(update.keys())}, created_at=datetime.now(timezone.utc)))
     return {"status": "updated"}
-
-
-@app.get("/admin/logs")
-def admin_logs(limit: int = 100, username: str = Depends(get_current_username)):
-    me = db["user"].find_one({"username": username})
-    if me.get("role") != "admin":
-        raise HTTPException(status_code=403, detail="Admin only")
-    logs = list(db["adminlog"].find({}).sort("created_at", -1).limit(limit))
-    return logs
 
 
 from fpdf import FPDF
